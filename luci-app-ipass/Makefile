@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-ipass
-PKG_VERSION:=0.3.9
+PKG_VERSION:=0.3.10
 PKG_RELEASE:=1
 
 LUCI_TITLE:=LuCI support for iPass Connectivity Check
