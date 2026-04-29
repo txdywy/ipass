@@ -55,7 +55,23 @@ jobs:
       - name: Update feeds
         working-directory: ${{ env.SDK_DIR }}
         run: |
-          ./scripts/feeds update -a
+          # Increase git buffer size to handle large clones in CI
+          git config --global http.postBuffer 524288000
+          git config --global http.lowSpeedLimit 0
+          git config --global http.lowSpeedTime 999999
+          
+          # Retry up to 3 times on failure
+          for i in 1 2 3; do
+            ./scripts/feeds update -a && break || {
+              if [ $i -lt 3 ]; then
+                echo "Feeds update failed, retrying in 10s... ($i/3)"
+                sleep 10
+              else
+                echo "Feeds update failed after 3 attempts."
+                exit 1
+              fi
+            }
+          done
           ./scripts/feeds install -a
 
       - name: Configure package
