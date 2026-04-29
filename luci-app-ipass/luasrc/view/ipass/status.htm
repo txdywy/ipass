@@ -1,0 +1,174 @@
+<%+header%>
+
+<style>
+.ipass-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin: 16px 0;
+}
+.ipass-summary {
+	font-size: 16px;
+	font-weight: 600;
+}
+.ipass-actions {
+	display: flex;
+	gap: 8px;
+}
+.ipass-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	gap: 12px;
+}
+.ipass-card {
+	border: 1px solid #d8d8d8;
+	border-radius: 6px;
+	padding: 12px;
+	background: #fff;
+}
+.ipass-card.ok {
+	border-color: #47a447;
+}
+.ipass-card.fail {
+	border-color: #d9534f;
+}
+.ipass-card.checking {
+	border-color: #f0ad4e;
+}
+.ipass-card-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+.ipass-name {
+	font-size: 15px;
+	font-weight: 600;
+}
+.ipass-category {
+	color: #666;
+	font-size: 12px;
+}
+.ipass-url {
+	color: #666;
+	font-size: 12px;
+	overflow-wrap: anywhere;
+	margin-bottom: 8px;
+}
+.ipass-row {
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+	font-size: 13px;
+	line-height: 1.8;
+}
+.ipass-muted {
+	color: #777;
+}
+.ipass-error {
+	color: #b94a48;
+	margin-top: 8px;
+	font-size: 13px;
+}
+</style>
+
+<h2 name="content"><%:连通性检测%></h2>
+
+<div class="ipass-toolbar">
+	<div id="ipass-summary" class="ipass-summary">未检测</div>
+	<div class="ipass-actions">
+		<a class="btn cbi-button" href="<%=url('admin/services/ipass/sites')%>">站点配置</a>
+		<button id="ipass-check" class="btn cbi-button cbi-button-apply">重新检测</button>
+	</div>
+</div>
+
+<div id="ipass-grid" class="ipass-grid"></div>
+
+<script type="text/javascript">
+(function() {
+	'use strict';
+
+	var grid = document.getElementById('ipass-grid');
+	var summary = document.getElementById('ipass-summary');
+	var button = document.getElementById('ipass-check');
+	var endpoint = '<%=url("admin/services/ipass/check")%>';
+
+	function text(value) {
+		return value === undefined || value === null || value === '' ? '-' : String(value);
+	}
+
+	function setSummary(results, running) {
+		if (running) {
+			summary.textContent = '检测中';
+			return;
+		}
+		if (!results || results.length === 0) {
+			summary.textContent = '未检测';
+			return;
+		}
+		var failed = results.filter(function(item) { return !item.ok; }).length;
+		summary.textContent = failed === 0 ? '全部可达' : '部分异常：' + failed + ' 个站点异常';
+	}
+
+	function renderChecking() {
+		grid.innerHTML = '<div class="ipass-card checking"><div class="ipass-name">检测中</div><div class="ipass-muted">正在从路由器发起 DNS 和 HTTP/HTTPS 检测。</div></div>';
+	}
+
+	function renderResults(results) {
+		grid.innerHTML = '';
+		results.forEach(function(item) {
+			var card = document.createElement('div');
+			card.className = 'ipass-card ' + (item.ok ? 'ok' : 'fail');
+			card.innerHTML =
+				'<div class="ipass-card-title">' +
+					'<div class="ipass-name"></div>' +
+					'<div class="ipass-category"></div>' +
+				'</div>' +
+				'<div class="ipass-url"></div>' +
+				'<div class="ipass-row"><span>DNS</span><strong class="dns"></strong></div>' +
+				'<div class="ipass-row"><span>HTTP</span><strong class="http"></strong></div>' +
+				'<div class="ipass-row"><span>耗时</span><span class="time"></span></div>' +
+				'<div class="ipass-row"><span>检测时间</span><span class="checked"></span></div>' +
+				'<div class="ipass-error"></div>';
+
+			card.querySelector('.ipass-name').textContent = text(item.name);
+			card.querySelector('.ipass-category').textContent = text(item.category);
+			card.querySelector('.ipass-url').textContent = text(item.url);
+			card.querySelector('.dns').textContent = item.dns_ok ? '正常' : '失败';
+			card.querySelector('.http').textContent = item.http_ok ? '正常 ' + text(item.http_code) : '失败';
+			card.querySelector('.time').textContent = item.time_total ? item.time_total + ' 秒' : '-';
+			card.querySelector('.checked').textContent = text(item.checked_at);
+			card.querySelector('.ipass-error').textContent = item.ok ? '' : text(item.error_message || item.error_type);
+			grid.appendChild(card);
+		});
+	}
+
+	function runCheck() {
+		button.disabled = true;
+		setSummary([], true);
+		renderChecking();
+
+		fetch(endpoint, { credentials: 'same-origin' })
+			.then(function(response) { return response.json(); })
+			.then(function(payload) {
+				var results = payload && payload.results ? payload.results : [];
+				renderResults(results);
+				setSummary(results, false);
+			})
+			.catch(function() {
+				grid.innerHTML = '<div class="ipass-card fail"><div class="ipass-name">检测失败</div><div class="ipass-error">无法调用检测接口。</div></div>';
+				summary.textContent = '部分异常';
+			})
+			.finally(function() {
+				button.disabled = false;
+			});
+	}
+
+	button.addEventListener('click', runCheck);
+	runCheck();
+}());
+</script>
+
+<%+footer%>
