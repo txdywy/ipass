@@ -72,17 +72,39 @@ function index()
 		return
 	end
 
-	entry({"admin", "services", "ipass"}, template("ipass/status"), _("连通性检测"), 60).dependent = true
+	entry({"admin", "services", "ipass"}, template("ipass/status"), _("iPass"), 60).dependent = true
 	entry({"admin", "services", "ipass", "sites"}, cbi("ipass/sites"), _("站点配置"), 61).leaf = true
+	entry({"admin", "services", "ipass", "list"}, call("action_list")).leaf = true
 	entry({"admin", "services", "ipass", "check"}, call("action_check")).leaf = true
 end
 
+function action_list()
+	local sites = read_sites()
+	http.prepare_content("application/json")
+	http.write_json({
+		ok = true,
+		sites = sites
+	})
+end
+
 function action_check()
+	local site_id = http.formvalue("id")
 	local results = {}
 	local sites = read_sites()
 
-	for _, site in ipairs(sites) do
-		results[#results + 1] = run_site_check(site)
+	if site_id and site_id ~= "" then
+		-- 单站检测
+		for _, site in ipairs(sites) do
+			if site.id == site_id then
+				results[#results + 1] = run_site_check(site)
+				break
+			end
+		end
+	else
+		-- 全量检测 (保留兼容性)
+		for _, site in ipairs(sites) do
+			results[#results + 1] = run_site_check(site)
+		end
 	end
 
 	http.prepare_content("application/json")

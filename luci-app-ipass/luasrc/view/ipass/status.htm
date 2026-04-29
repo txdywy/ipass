@@ -7,10 +7,14 @@
 	justify-content: space-between;
 	gap: 12px;
 	margin: 16px 0;
+	padding: 12px;
+	background: #f9f9f9;
+	border-radius: 8px;
 }
 .ipass-summary {
 	font-size: 16px;
 	font-weight: 600;
+	color: #333;
 }
 .ipass-actions {
 	display: flex;
@@ -18,69 +22,144 @@
 }
 .ipass-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-	gap: 12px;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 16px;
+	margin-top: 20px;
 }
+
+/* 卡片基础样式 */
 .ipass-card {
-	border: 1px solid #d8d8d8;
-	border-radius: 6px;
-	padding: 12px;
+	position: relative;
+	border: 1px solid #e0e0e0;
+	border-radius: 10px;
+	padding: 16px;
 	background: #fff;
+	transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+	box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+	overflow: hidden;
+	animation: fadeIn 0.5s ease-out;
 }
-.ipass-card.ok {
-	border-color: #47a447;
+.ipass-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
-.ipass-card.fail {
-	border-color: #d9534f;
+
+/* 状态颜色 */
+.ipass-card.ok { border-left: 5px solid #4caf50; }
+.ipass-card.fail { border-left: 5px solid #f44336; }
+.ipass-card.checking { border-left: 5px solid #2196f3; }
+
+/* 正在检测的动画 */
+@keyframes pulse-blue {
+	0% { border-color: #e0e0e0; box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4); }
+	50% { border-color: #2196f3; box-shadow: 0 0 0 8px rgba(33, 150, 243, 0); }
+	100% { border-color: #e0e0e0; box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
 }
 .ipass-card.checking {
-	border-color: #f0ad4e;
+	animation: pulse-blue 2s infinite;
 }
-.ipass-card-title {
+
+@keyframes fadeIn {
+	from { opacity: 0; transform: translateY(10px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+/* 内部布局 */
+.ipass-card-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 8px;
-	margin-bottom: 8px;
+	margin-bottom: 12px;
 }
 .ipass-name {
-	font-size: 15px;
-	font-weight: 600;
+	font-size: 16px;
+	font-weight: 700;
+	color: #2c3e50;
 }
 .ipass-category {
+	padding: 2px 8px;
+	background: #eee;
+	border-radius: 12px;
+	font-size: 11px;
 	color: #666;
-	font-size: 12px;
 }
 .ipass-url {
-	color: #666;
+	color: #888;
 	font-size: 12px;
-	overflow-wrap: anywhere;
-	margin-bottom: 8px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-bottom: 12px;
+}
+
+.ipass-stats {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
 }
 .ipass-row {
 	display: flex;
 	justify-content: space-between;
-	gap: 8px;
+	align-items: center;
 	font-size: 13px;
-	line-height: 1.8;
 }
-.ipass-muted {
-	color: #777;
+.ipass-label { color: #999; }
+.ipass-val { font-weight: 600; }
+
+/* 延迟时间颜色 */
+.val-fast { color: #4caf50; }
+.val-medium { color: #ff9800; }
+.val-slow { color: #f44336; }
+
+.ipass-footer {
+	margin-top: 14px;
+	padding-top: 12px;
+	border-top: 1px solid #f0f0f0;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
-.ipass-error {
-	color: #b94a48;
-	margin-top: 8px;
-	font-size: 13px;
+.ipass-time { font-size: 11px; color: #bbb; }
+
+/* 单个重测按钮 */
+.ipass-recheck-btn {
+	padding: 4px 10px;
+	font-size: 12px;
+	border-radius: 4px;
+	border: 1px solid #ddd;
+	background: #fff;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+.ipass-recheck-btn:hover:not(:disabled) {
+	background: #f0f0f0;
+	border-color: #ccc;
+}
+.ipass-recheck-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* 加载小球 */
+.loading-dots:after {
+	content: ' .';
+	animation: dots 1.5s steps(5, end) infinite;
+}
+@keyframes dots {
+	0%, 20% { color: rgba(0,0,0,0); text-shadow: .5em 0 0 rgba(0,0,0,0), 1em 0 0 rgba(0,0,0,0); }
+	40% { color: #666; text-shadow: .5em 0 0 rgba(0,0,0,0), 1em 0 0 rgba(0,0,0,0); }
+	60% { text-shadow: .5em 0 0 #666, 1em 0 0 rgba(0,0,0,0); }
+	80%, 100% { text-shadow: .5em 0 0 #666, 1em 0 0 #666; }
 }
 </style>
 
-<h2 name="content"><%:连通性检测%></h2>
+<h2 name="content"><%:iPass%></h2>
 
 <div class="ipass-toolbar">
-	<div id="ipass-summary" class="ipass-summary">未检测</div>
+	<div id="ipass-summary" class="ipass-summary">正在初始化...</div>
 	<div class="ipass-actions">
 		<a class="btn cbi-button" href="<%=url('admin/services/ipass/sites')%>">站点配置</a>
-		<button id="ipass-check" class="btn cbi-button cbi-button-apply">重新检测</button>
+		<button id="ipass-check-all" class="btn cbi-button cbi-button-apply">全部检测</button>
 	</div>
 </div>
 
@@ -92,82 +171,175 @@
 
 	var grid = document.getElementById('ipass-grid');
 	var summary = document.getElementById('ipass-summary');
-	var button = document.getElementById('ipass-check');
-	var endpoint = '<%=url("admin/services/ipass/check")%>';
+	var btnCheckAll = document.getElementById('ipass-check-all');
+	
+	var listEndpoint = '<%=url("admin/services/ipass/list")%>';
+	var checkEndpoint = '<%=url("admin/services/ipass/check")%>';
 
-	function text(value) {
-		return value === undefined || value === null || value === '' ? '-' : String(value);
+	var sitesData = [];
+	var checkResults = {};
+
+	function getLatencyClass(ms) {
+		var sec = parseFloat(ms);
+		if (isNaN(sec)) return '';
+		if (sec < 0.2) return 'val-fast';
+		if (sec < 0.8) return 'val-medium';
+		return 'val-slow';
 	}
 
-	function setSummary(results, running) {
-		if (running) {
-			summary.textContent = '检测中';
-			return;
+	function updateSummary() {
+		var total = sitesData.length;
+		var checked = Object.keys(checkResults).length;
+		var running = total - checked;
+		var failed = 0;
+		for (var id in checkResults) {
+			if (!checkResults[id].ok) failed++;
 		}
-		if (!results || results.length === 0) {
-			summary.textContent = '未检测';
-			return;
+
+		if (checked < total) {
+			summary.innerHTML = '正在检测: ' + checked + '/' + total + ' <span class="loading-dots"></span>';
+		} else {
+			summary.textContent = failed === 0 ? '全部站点运行正常' : '检测完成，' + failed + ' 个站点连接异常';
 		}
-		var failed = results.filter(function(item) { return !item.ok; }).length;
-		summary.textContent = failed === 0 ? '全部可达' : '部分异常：' + failed + ' 个站点异常';
 	}
 
-	function renderChecking() {
-		grid.innerHTML = '<div class="ipass-card checking"><div class="ipass-name">检测中</div><div class="ipass-muted">正在从路由器发起 DNS 和 HTTP/HTTPS 检测。</div></div>';
-	}
-
-	function renderResults(results) {
-		grid.innerHTML = '';
-		results.forEach(function(item) {
-			var card = document.createElement('div');
-			card.className = 'ipass-card ' + (item.ok ? 'ok' : 'fail');
-			card.innerHTML =
-				'<div class="ipass-card-title">' +
-					'<div class="ipass-name"></div>' +
-					'<div class="ipass-category"></div>' +
-				'</div>' +
-				'<div class="ipass-url"></div>' +
-				'<div class="ipass-row"><span>DNS</span><strong class="dns"></strong></div>' +
-				'<div class="ipass-row"><span>HTTP</span><strong class="http"></strong></div>' +
-				'<div class="ipass-row"><span>耗时</span><span class="time"></span></div>' +
-				'<div class="ipass-row"><span>检测时间</span><span class="checked"></span></div>' +
-				'<div class="ipass-error"></div>';
-
-			card.querySelector('.ipass-name').textContent = text(item.name);
-			card.querySelector('.ipass-category').textContent = text(item.category);
-			card.querySelector('.ipass-url').textContent = text(item.url);
-			card.querySelector('.dns').textContent = item.dns_ok ? '正常' : '失败';
-			card.querySelector('.http').textContent = item.http_ok ? '正常 ' + text(item.http_code) : '失败';
-			card.querySelector('.time').textContent = item.time_total ? item.time_total + ' 秒' : '-';
-			card.querySelector('.checked').textContent = text(item.checked_at);
-			card.querySelector('.ipass-error').textContent = item.ok ? '' : text(item.error_message || item.error_type);
-			grid.appendChild(card);
+	function createCard(site) {
+		var card = document.createElement('div');
+		card.id = 'card-' + site.id;
+		card.className = 'ipass-card';
+		card.innerHTML = 
+			'<div class="ipass-card-header">' +
+				'<span class="ipass-name"></span>' +
+				'<span class="ipass-category"></span>' +
+			'</div>' +
+			'<div class="ipass-url"></div>' +
+			'<div class="ipass-stats">' +
+				'<div class="ipass-row"><span class="ipass-label">DNS 解析</span><span class="ipass-val dns-val">-</span></div>' +
+				'<div class="ipass-row"><span class="ipass-label">HTTP 连接</span><span class="ipass-val http-val">-</span></div>' +
+				'<div class="ipass-row"><span class="ipass-label">响应耗时</span><span class="ipass-val time-val">-</span></div>' +
+			'</div>' +
+			'<div class="ipass-footer">' +
+				'<span class="ipass-time">-</span>' +
+				'<button class="ipass-recheck-btn">检测</button>' +
+			'</div>';
+		
+		card.querySelector('.ipass-name').textContent = site.name;
+		card.querySelector('.ipass-category').textContent = site.category;
+		card.querySelector('.ipass-url').textContent = site.url;
+		
+		var recheckBtn = card.querySelector('.ipass-recheck-btn');
+		recheckBtn.addEventListener('click', function() {
+			runSingleCheck(site.id);
 		});
+
+		return card;
 	}
 
-	function runCheck() {
-		button.disabled = true;
-		setSummary([], true);
-		renderChecking();
+	function updateCard(siteId, result, checking) {
+		var card = document.getElementById('card-' + siteId);
+		if (!card) return;
 
-		fetch(endpoint, { credentials: 'same-origin' })
-			.then(function(response) { return response.json(); })
-			.then(function(payload) {
-				var results = payload && payload.results ? payload.results : [];
-				renderResults(results);
-				setSummary(results, false);
+		var recheckBtn = card.querySelector('.ipass-recheck-btn');
+		
+		if (checking) {
+			card.className = 'ipass-card checking';
+			recheckBtn.disabled = true;
+			recheckBtn.textContent = '检测中...';
+			return;
+		}
+
+		recheckBtn.disabled = false;
+		recheckBtn.textContent = '重测';
+		card.className = 'ipass-card ' + (result.ok ? 'ok' : 'fail');
+		
+		card.querySelector('.dns-val').textContent = result.dns_ok ? '正常' : '失败';
+		card.querySelector('.dns-val').style.color = result.dns_ok ? '#4caf50' : '#f44336';
+		
+		var httpText = result.http_ok ? '成功 (' + result.http_code + ')' : (result.http_code > 0 ? '异常 (' + result.http_code + ')' : '失败');
+		card.querySelector('.http-val').textContent = httpText;
+		card.querySelector('.http-val').style.color = result.http_ok ? '#4caf50' : '#f44336';
+		
+		var timeVal = card.querySelector('.time-val');
+		if (result.time_total) {
+			timeVal.textContent = result.time_total + 's';
+			timeVal.className = 'ipass-val time-val ' + getLatencyClass(result.time_total);
+		} else {
+			timeVal.textContent = '-';
+			timeVal.className = 'ipass-val time-val';
+		}
+
+		card.querySelector('.ipass-time').textContent = result.checked_at || '-';
+		
+		// 只有失败时才显示具体错误原因（节省空间）
+		var errorDiv = card.querySelector('.ipass-error-msg');
+		if (!result.ok) {
+			if (!errorDiv) {
+				errorDiv = document.createElement('div');
+				errorDiv.className = 'ipass-error-msg';
+				errorDiv.style.cssText = 'color:#f44336; font-size:12px; margin-top:8px; border-top:1px dashed #fee; padding-top:8px;';
+				card.querySelector('.ipass-stats').appendChild(errorDiv);
+			}
+			errorDiv.textContent = result.error_message || result.error_type || '连接失败';
+		} else if (errorDiv) {
+			errorDiv.remove();
+		}
+	}
+
+	function runSingleCheck(siteId) {
+		updateCard(siteId, null, true);
+		delete checkResults[siteId];
+		updateSummary();
+
+		fetch(checkEndpoint + '?id=' + encodeURIComponent(siteId), { credentials: 'same-origin' })
+			.then(function(res) { return res.json(); })
+			.then(function(data) {
+				var res = (data && data.results && data.results[0]) || { ok: false, error_type: 'network_error' };
+				checkResults[siteId] = res;
+				updateCard(siteId, res, false);
+				updateSummary();
 			})
 			.catch(function() {
-				grid.innerHTML = '<div class="ipass-card fail"><div class="ipass-name">检测失败</div><div class="ipass-error">无法调用检测接口。</div></div>';
-				summary.textContent = '部分异常';
-			})
-			.finally(function() {
-				button.disabled = false;
+				var err = { ok: false, error_message: '接口请求失败' };
+				checkResults[siteId] = err;
+				updateCard(siteId, err, false);
+				updateSummary();
 			});
 	}
 
-	button.addEventListener('click', runCheck);
-	runCheck();
+	function runAllChecks() {
+		btnCheckAll.disabled = true;
+		sitesData.forEach(function(site) {
+			runSingleCheck(site.id);
+		});
+		
+		// 检查是否全部完成以恢复按钮
+		var timer = setInterval(function() {
+			if (Object.keys(checkResults).length === sitesData.length) {
+				btnCheckAll.disabled = false;
+				clearInterval(timer);
+			}
+		}, 500);
+	}
+
+	// 初始化：获取站点列表
+	fetch(listEndpoint, { credentials: 'same-origin' })
+		.then(function(res) { return res.json(); })
+		.then(function(data) {
+			sitesData = data.sites || [];
+			grid.innerHTML = '';
+			sitesData.forEach(function(site) {
+				grid.appendChild(createCard(site));
+			});
+			updateSummary();
+			// 自动开始第一次全量检测
+			runAllChecks();
+		})
+		.catch(function() {
+			summary.textContent = '初始化失败，请检查配置。';
+		});
+
+	btnCheckAll.addEventListener('click', runAllChecks);
+
 }());
 </script>
 

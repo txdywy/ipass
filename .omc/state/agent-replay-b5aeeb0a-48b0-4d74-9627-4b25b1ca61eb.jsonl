@@ -1,0 +1,3 @@
+{"t":0,"agent":"system","event":"skill_invoked","skill_name":"superpowers:using-superpowers"}
+{"t":0,"agent":"system","event":"skill_invoked","skill_name":"code-review:code-review"}
+{"t":0,"agent":"a8fbe7c","agent_type":"unknown","event":"agent_stop","success":true}

@@ -597,7 +597,7 @@ function index()
 		return
 	end
 
-	entry({"admin", "services", "ipass"}, template("ipass/status"), _("连通性检测"), 60).dependent = true
+	entry({"admin", "services", "ipass"}, template("ipass/status"), _("iPass"), 60).dependent = true
 	entry({"admin", "services", "ipass", "sites"}, cbi("ipass/sites"), _("站点配置"), 61).leaf = true
 	entry({"admin", "services", "ipass", "check"}, call("action_check")).leaf = true
 end
@@ -652,7 +652,7 @@ local m
 local s
 local o
 
-m = Map("ipass", translate("连通性检测 - 站点配置"))
+m = Map("ipass", translate("iPass - 站点配置"))
 m.description = translate("管理需要从路由器检测连通性的站点。")
 
 s = m:section(TypedSection, "site", translate("站点"))
@@ -803,7 +803,7 @@ Create `luci-app-ipass/luasrc/view/ipass/status.htm`:
 }
 </style>
 
-<h2 name="content"><%:连通性检测%></h2>
+<h2 name="content"><%:iPass%></h2>
 
 <div class="ipass-toolbar">
 	<div id="ipass-summary" class="ipass-summary">未检测</div>
@@ -1269,7 +1269,7 @@ opkg install /tmp/luci-app-ipass_0.1.0-1_all.ipk
 
 Expected:
 
-- LuCI menu shows `服务 -> 连通性检测`.
+- LuCI menu shows `服务 -> iPass`.
 - Opening the page automatically starts detection.
 - `重新检测` refreshes results.
 - The config page can add, edit, delete, enable, and disable sites.

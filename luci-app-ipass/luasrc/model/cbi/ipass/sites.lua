@@ -2,7 +2,7 @@ local m
 local s
 local o
 
-m = Map("ipass", translate("连通性检测 - 站点配置"))
+m = Map("ipass", translate("iPass - 站点配置"))
 m.description = translate("管理需要从路由器检测连通性的站点。")
 
 s = m:section(TypedSection, "site", translate("站点"))

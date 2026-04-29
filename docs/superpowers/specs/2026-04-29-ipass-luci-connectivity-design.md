@@ -29,7 +29,7 @@ The first version is deliberately small: no daemon, no scheduled background chec
 
 ## Product Behavior
 
-The LuCI menu entry is named `连通性检测`, placed under either `服务` or `网络`. The main page shows an overall status at the top:
+The LuCI menu entry is named `iPass`, placed under either `服务` or `网络`. The main page shows an overall status at the top:
 
 - `检测中`
 - `全部可达`
