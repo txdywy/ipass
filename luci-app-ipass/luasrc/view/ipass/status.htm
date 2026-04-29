@@ -261,6 +261,11 @@
 		var domain = site.url.split('/')[2];
 		var logoUrl = 'https://www.google.com/s2/favicons?domain=' + domain + '&sz=64';
 		
+		// 针对特定站点（如小红书）的 Logo 优化
+		if (domain.indexOf('xiaohongshu.com') !== -1) {
+			logoUrl = 'https://www.xiaohongshu.com/favicon.ico';
+		}
+		
 		card.innerHTML = 
 			'<div class="ipass-card-header">' +
 				'<img class="ipass-logo" src="' + logoUrl + '" onerror="this.src=\'<%=resource%>/cbi/help.png\'">' +
