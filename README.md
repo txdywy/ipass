@@ -16,7 +16,7 @@
 
 - iStoreOS 24.10.x
 - OpenWrt 24.10 SDK
-- CI build target: `aarch64_generic`
+- CI build targets: `armsr-armv8`, `rockchip-armv8`, `mediatek-filogic`, `ramips-mt7621`, and `x86-64`
 - Target devices include Rockchip R2S, R4S, R5S, R6S, and EasePi-R1.
 
 The LuCI package itself is architecture-independent and produces an `_all.ipk`.
@@ -39,4 +39,13 @@ luci-app-ipass/
 
 ## GitHub Actions
 
-The build workflow runs only on `main` branch pushes and manual dispatch. It builds the package with the OpenWrt 24.10 `aarch64_generic` SDK and uploads the generated `.ipk`.
+The build workflow runs on `main` branch pushes, `v*` tag pushes, and manual dispatch. It builds with multiple OpenWrt 24.10 SDK targets and uploads both `.ipk` and self-installing `.run` artifacts.
+
+Pushing a version tag publishes a GitHub Release automatically:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Release asset names include the OpenWrt SDK target, for example `luci-app-ipass_0.1.0-1_all-rockchip-armv8.ipk` and `luci-app-ipass_0.1.0-1_all-rockchip-armv8.run`.
