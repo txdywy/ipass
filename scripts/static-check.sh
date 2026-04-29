@@ -36,6 +36,15 @@ grep -q 'ipass-latency-meter' luci-app-ipass/luasrc/view/ipass/status.htm
 grep -q 'MAX_CONCURRENT_CHECKS' luci-app-ipass/luasrc/view/ipass/status.htm
 grep -q 'queuedSites' luci-app-ipass/luasrc/view/ipass/status.htm
 grep -q '排队中' luci-app-ipass/luasrc/view/ipass/status.htm
+grep -q 'ipass-latency-chart' luci-app-ipass/luasrc/view/ipass/status.htm
+grep -q 'updateLatencyChart' luci-app-ipass/luasrc/view/ipass/status.htm
+grep -q 'getLatencyTone' luci-app-ipass/luasrc/view/ipass/status.htm
+grep -q 'ipass-chart-bar-fill' luci-app-ipass/luasrc/view/ipass/status.htm
+grep -q 'ipass-distribution-panel' luci-app-ipass/luasrc/view/ipass/status.htm
+grep -q 'updateDistributionPanel' luci-app-ipass/luasrc/view/ipass/status.htm
+grep -q 'calculateLatencyStats' luci-app-ipass/luasrc/view/ipass/status.htm
+grep -q 'ipass-dist-marker' luci-app-ipass/luasrc/view/ipass/status.htm
+grep -q 'P90' luci-app-ipass/luasrc/view/ipass/status.htm
 
 sh -n luci-app-ipass/root/etc/uci-defaults/90_luci-ipass
 if [ -f luci-app-ipass/root/usr/share/ipass/check.sh ]; then

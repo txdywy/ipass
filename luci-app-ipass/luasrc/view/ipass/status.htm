@@ -124,6 +124,306 @@
 	transition: width 0.35s ease;
 }
 
+.ipass-latency-chart {
+	position: relative;
+	overflow: hidden;
+	margin: 18px 0;
+	padding: 15px;
+	border: 1px solid #dce6f1;
+	border-radius: 8px;
+	background:
+		linear-gradient(135deg, rgba(255,255,255,0.96), rgba(247,250,254,0.94)),
+		#fff;
+	box-shadow: 0 12px 30px rgba(23,32,42,0.07);
+}
+.ipass-latency-chart::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background:
+		linear-gradient(90deg, rgba(25,168,107,0.08), transparent 28%),
+		linear-gradient(90deg, transparent 55%, rgba(223,63,79,0.08));
+	pointer-events: none;
+}
+.ipass-chart-head {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 13px;
+}
+.ipass-chart-title {
+	font-size: 16px;
+	line-height: 1.25;
+	font-weight: 800;
+	color: var(--ipass-ink);
+}
+.ipass-chart-subtitle {
+	margin-top: 3px;
+	font-size: 11px;
+	line-height: 1.35;
+	font-weight: 700;
+	color: var(--ipass-muted);
+}
+.ipass-chart-legend {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	flex: 0 0 auto;
+	font-size: 10px;
+	font-weight: 800;
+	color: var(--ipass-muted);
+}
+.ipass-chart-scale {
+	width: 92px;
+	height: 8px;
+	border-radius: 999px;
+	background: linear-gradient(90deg, var(--ipass-green), var(--ipass-amber), var(--ipass-red));
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
+}
+.ipass-chart-list {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	gap: 8px;
+	min-height: 46px;
+}
+.ipass-chart-empty {
+	position: relative;
+	z-index: 1;
+	padding: 14px;
+	border: 1px dashed #c8d5e2;
+	border-radius: 8px;
+	background: rgba(255,255,255,0.72);
+	color: var(--ipass-muted);
+	font-size: 12px;
+	font-weight: 700;
+	text-align: center;
+}
+.ipass-chart-row {
+	display: grid;
+	grid-template-columns: minmax(84px, 128px) 1fr 58px;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 10px;
+	border: 1px solid rgba(221,230,239,0.78);
+	border-radius: 8px;
+	background: rgba(255,255,255,0.76);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.88);
+	animation: ipass-chart-rise 0.34s ease both;
+}
+@keyframes ipass-chart-rise {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+.ipass-chart-name {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 12px;
+	font-weight: 800;
+	color: #26384b;
+}
+.ipass-chart-track {
+	position: relative;
+	height: 12px;
+	overflow: hidden;
+	border-radius: 999px;
+	background: #e8eef5;
+}
+.ipass-chart-bar-fill {
+	width: 0%;
+	height: 100%;
+	border-radius: inherit;
+	background: linear-gradient(90deg, var(--ipass-green), #53c992);
+	box-shadow: 0 0 14px rgba(25,168,107,0.22);
+	transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ipass-chart-row.medium .ipass-chart-bar-fill {
+	background: linear-gradient(90deg, #55c987, var(--ipass-amber));
+	box-shadow: 0 0 14px rgba(217,144,22,0.18);
+}
+.ipass-chart-row.slow .ipass-chart-bar-fill,
+.ipass-chart-row.fail .ipass-chart-bar-fill {
+	background: linear-gradient(90deg, var(--ipass-amber), var(--ipass-red));
+	box-shadow: 0 0 14px rgba(223,63,79,0.2);
+}
+.ipass-chart-value {
+	text-align: right;
+	font-size: 11px;
+	font-weight: 900;
+	color: #26384b;
+}
+.ipass-chart-row.fail .ipass-chart-value {
+	color: var(--ipass-red);
+}
+
+.ipass-distribution-panel {
+	position: relative;
+	overflow: hidden;
+	margin: 0 0 18px;
+	padding: 15px;
+	border: 1px solid #dce6f1;
+	border-radius: 8px;
+	background:
+		linear-gradient(135deg, rgba(255,255,255,0.97), rgba(248,251,255,0.95)),
+		#fff;
+	box-shadow: 0 12px 30px rgba(23,32,42,0.06);
+}
+.ipass-distribution-panel::before {
+	content: '';
+	position: absolute;
+	inset: -1px;
+	background: linear-gradient(120deg, rgba(35,119,255,0.08), transparent 36%, rgba(25,168,107,0.08));
+	pointer-events: none;
+}
+.ipass-dist-head {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 13px;
+}
+.ipass-dist-title {
+	font-size: 16px;
+	line-height: 1.25;
+	font-weight: 800;
+	color: var(--ipass-ink);
+}
+.ipass-dist-subtitle {
+	margin-top: 3px;
+	font-size: 11px;
+	line-height: 1.35;
+	font-weight: 700;
+	color: var(--ipass-muted);
+}
+.ipass-dist-stats {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	grid-template-columns: repeat(6, minmax(78px, 1fr));
+	gap: 8px;
+	margin-bottom: 14px;
+}
+.ipass-dist-stat {
+	padding: 9px 10px;
+	border: 1px solid rgba(221,230,239,0.82);
+	border-radius: 8px;
+	background: rgba(255,255,255,0.78);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.86);
+}
+.ipass-dist-label {
+	display: block;
+	margin-bottom: 3px;
+	font-size: 10px;
+	font-weight: 800;
+	color: var(--ipass-muted);
+}
+.ipass-dist-value {
+	display: block;
+	font-size: 16px;
+	line-height: 1.1;
+	font-weight: 900;
+	color: #243447;
+}
+.ipass-dist-plot {
+	position: relative;
+	z-index: 1;
+	padding: 18px 0 25px;
+}
+.ipass-dist-axis {
+	position: relative;
+	height: 18px;
+	overflow: visible;
+	border-radius: 999px;
+	background:
+		linear-gradient(90deg,
+			rgba(25,168,107,0.95) 0%,
+			rgba(25,168,107,0.78) 35%,
+			rgba(217,144,22,0.78) 70%,
+			rgba(223,63,79,0.9) 100%);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 10px 22px rgba(23,32,42,0.08);
+}
+.ipass-dist-band {
+	position: absolute;
+	top: -8px;
+	bottom: -8px;
+	width: 1px;
+	background: rgba(255,255,255,0.76);
+	box-shadow: 0 0 0 1px rgba(23,32,42,0.08);
+}
+.ipass-dist-band span {
+	position: absolute;
+	top: 28px;
+	left: 50%;
+	transform: translateX(-50%);
+	white-space: nowrap;
+	font-size: 9px;
+	font-weight: 900;
+	color: var(--ipass-muted);
+}
+.ipass-dist-marker {
+	position: absolute;
+	top: 50%;
+	width: 12px;
+	height: 12px;
+	border: 2px solid #fff;
+	border-radius: 50%;
+	background: #243447;
+	box-shadow: 0 5px 12px rgba(23,32,42,0.2);
+	transform: translate(-50%, -50%);
+	transition: left 0.48s cubic-bezier(0.22, 1, 0.36, 1), transform 0.2s ease;
+}
+.ipass-dist-marker:hover {
+	transform: translate(-50%, -50%) scale(1.35);
+	z-index: 3;
+}
+.ipass-dist-marker.fast { background: var(--ipass-green); }
+.ipass-dist-marker.medium { background: var(--ipass-amber); }
+.ipass-dist-marker.slow,
+.ipass-dist-marker.fail { background: var(--ipass-red); }
+.ipass-dist-marker::after {
+	content: attr(data-label);
+	position: absolute;
+	left: 50%;
+	bottom: 17px;
+	max-width: 120px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding: 3px 6px;
+	border-radius: 6px;
+	background: rgba(23,32,42,0.9);
+	color: #fff;
+	font-size: 10px;
+	font-weight: 800;
+	opacity: 0;
+	pointer-events: none;
+	transform: translateX(-50%) translateY(4px);
+	transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.ipass-dist-marker:hover::after {
+	opacity: 1;
+	transform: translateX(-50%) translateY(0);
+}
+.ipass-dist-empty {
+	position: relative;
+	z-index: 1;
+	padding: 14px;
+	border: 1px dashed #c8d5e2;
+	border-radius: 8px;
+	background: rgba(255,255,255,0.72);
+	color: var(--ipass-muted);
+	font-size: 12px;
+	font-weight: 700;
+	text-align: center;
+}
+
 .ipass-filterbar {
 	display: flex;
 	flex-wrap: wrap;
@@ -436,6 +736,19 @@
 	.ipass-metrics {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
+	.ipass-chart-head {
+		flex-direction: column;
+	}
+	.ipass-chart-row {
+		grid-template-columns: minmax(74px, 96px) 1fr 52px;
+		gap: 8px;
+	}
+	.ipass-dist-head {
+		flex-direction: column;
+	}
+	.ipass-dist-stats {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
 	.ipass-grid {
 		grid-template-columns: 1fr;
 	}
@@ -444,9 +757,12 @@
 	.ipass-card,
 	.ipass-filter-btn,
 	.ipass-progress-fill,
-	.ipass-latency-fill {
+	.ipass-latency-fill,
+	.ipass-chart-bar-fill,
+	.ipass-dist-marker {
 		transition: none;
 	}
+	.ipass-chart-row,
 	.ipass-card.checking {
 		animation: none;
 	}
@@ -488,6 +804,57 @@
 		</div>
 	</div>
 
+	<div class="ipass-latency-chart">
+		<div class="ipass-chart-head">
+			<div>
+				<div class="ipass-chart-title">延迟表现排行</div>
+				<div id="ipass-chart-subtitle" class="ipass-chart-subtitle">测试过程中实时排序，越靠前越快。</div>
+			</div>
+			<div class="ipass-chart-legend">
+				<span>快</span>
+				<span class="ipass-chart-scale"></span>
+				<span>慢</span>
+			</div>
+		</div>
+		<div id="ipass-chart-list" class="ipass-chart-list"></div>
+	</div>
+
+	<div class="ipass-distribution-panel">
+		<div class="ipass-dist-head">
+			<div>
+				<div class="ipass-dist-title">统计分布定位</div>
+				<div id="ipass-dist-subtitle" class="ipass-dist-subtitle">用分位数和离散度观察每个站点处在本轮样本中的位置。</div>
+			</div>
+		</div>
+		<div class="ipass-dist-stats">
+			<div class="ipass-dist-stat">
+				<span class="ipass-dist-label">中位数</span>
+				<span id="dist-median" class="ipass-dist-value">-</span>
+			</div>
+			<div class="ipass-dist-stat">
+				<span class="ipass-dist-label">P90</span>
+				<span id="dist-p90" class="ipass-dist-value">-</span>
+			</div>
+			<div class="ipass-dist-stat">
+				<span class="ipass-dist-label">IQR</span>
+				<span id="dist-iqr" class="ipass-dist-value">-</span>
+			</div>
+			<div class="ipass-dist-stat">
+				<span class="ipass-dist-label">尾部放大</span>
+				<span id="dist-tail" class="ipass-dist-value">-</span>
+			</div>
+			<div class="ipass-dist-stat">
+				<span class="ipass-dist-label">异常</span>
+				<span id="dist-failed" class="ipass-dist-value">0</span>
+			</div>
+			<div class="ipass-dist-stat">
+				<span class="ipass-dist-label">样本数</span>
+				<span id="dist-sample" class="ipass-dist-value">0</span>
+			</div>
+		</div>
+		<div id="ipass-dist-plot" class="ipass-dist-plot"></div>
+	</div>
+
 	<div class="ipass-filterbar" data-filter="all">
 		<button class="ipass-filter-btn active" data-filter="all" type="button">全部</button>
 		<button class="ipass-filter-btn" data-filter="ok" type="button">畅通</button>
@@ -526,6 +893,16 @@
 	var metricOk = document.getElementById('metric-ok');
 	var metricFail = document.getElementById('metric-fail');
 	var metricLatency = document.getElementById('metric-latency');
+	var chartList = document.getElementById('ipass-chart-list');
+	var chartSubtitle = document.getElementById('ipass-chart-subtitle');
+	var distSubtitle = document.getElementById('ipass-dist-subtitle');
+	var distMedian = document.getElementById('dist-median');
+	var distP90 = document.getElementById('dist-p90');
+	var distIqr = document.getElementById('dist-iqr');
+	var distTail = document.getElementById('dist-tail');
+	var distFailed = document.getElementById('dist-failed');
+	var distSample = document.getElementById('dist-sample');
+	var distPlot = document.getElementById('ipass-dist-plot');
 
 	var grids = {
 		'国内': document.getElementById('grid-domestic'),
@@ -567,6 +944,66 @@
 		var sec = parseFloat(ms);
 		if (isNaN(sec) || sec <= 0) return 0;
 		return Math.max(8, Math.min(100, Math.round((sec / 1.5) * 100)));
+	}
+
+	function getLatencyTone(ms, failed) {
+		var sec = parseFloat(ms);
+		if (failed) return 'fail';
+		if (isNaN(sec)) return 'fail';
+		if (sec < 0.25) return 'fast';
+		if (sec < 0.75) return 'medium';
+		return 'slow';
+	}
+
+	function percentile(sorted, p) {
+		if (!sorted.length) return 0;
+		if (sorted.length === 1) return sorted[0];
+		var index = (sorted.length - 1) * p;
+		var lower = Math.floor(index);
+		var upper = Math.ceil(index);
+		if (lower === upper) return sorted[lower];
+		return sorted[lower] + (sorted[upper] - sorted[lower]) * (index - lower);
+	}
+
+	function calculateLatencyStats(values) {
+		if (!values.length) {
+			return { count: 0, min: 0, max: 0, mean: 0, median: 0, p25: 0, p75: 0, p90: 0, stddev: 0 };
+		}
+
+		var sorted = values.slice().sort(function(a, b) { return a - b; });
+		var total = 0;
+		for (var i = 0; i < sorted.length; i++) total += sorted[i];
+		var mean = total / sorted.length;
+		var variance = 0;
+		for (var j = 0; j < sorted.length; j++) variance += Math.pow(sorted[j] - mean, 2);
+		variance = variance / sorted.length;
+
+		return {
+			count: sorted.length,
+			min: sorted[0],
+			max: sorted[sorted.length - 1],
+			mean: mean,
+			median: percentile(sorted, 0.5),
+			p25: percentile(sorted, 0.25),
+			p75: percentile(sorted, 0.75),
+			p90: percentile(sorted, 0.9),
+			stddev: Math.sqrt(variance)
+		};
+	}
+
+	function formatMs(value) {
+		return value > 0 ? Math.round(value) + 'ms' : '-';
+	}
+
+	function formatRatio(value) {
+		return value > 0 ? value.toFixed(1) + 'x' : '-';
+	}
+
+	function getLatencyPosition(ms) {
+		if (ms <= 250) return Math.max(0, Math.round((ms / 250) * 35));
+		if (ms <= 750) return 35 + Math.round(((ms - 250) / 500) * 35);
+		if (ms <= 1500) return 70 + Math.round(((ms - 750) / 750) * 20);
+		return 90 + Math.min(10, Math.round(((Math.min(ms, 3000) - 1500) / 1500) * 10));
 	}
 
 	function getCardState(siteId) {
@@ -620,6 +1057,135 @@
 			summary.textContent = '网络畅通无阻，所有站点均可访问';
 		} else {
 			summary.textContent = '网络局部受阻，' + failed + ' 个站点异常';
+		}
+		updateLatencyChart(checked, total);
+		updateDistributionPanel(checked, total);
+	}
+
+	function getSiteById(siteId) {
+		for (var i = 0; i < sitesData.length; i++) {
+			if (sitesData[i].id === siteId) return sitesData[i];
+		}
+		return null;
+	}
+
+	function updateLatencyChart(checked, total) {
+		var rows = [];
+		var worstMs = 0;
+
+		for (var id in checkResults) {
+			var result = checkResults[id];
+			var site = getSiteById(id);
+			var ms = result && result.time_total ? Math.round(parseFloat(result.time_total) * 1000) : 0;
+			var failed = !result || !result.ok || !ms;
+			var score = failed ? 999999 : ms;
+			if (!failed && ms > worstMs) worstMs = ms;
+			rows.push({
+				id: id,
+				name: site ? site.name : (result.name || id),
+				ms: ms,
+				failed: failed,
+				score: score
+			});
+		}
+
+		rows.sort(function(a, b) {
+			if (a.score !== b.score) return a.score - b.score;
+			return a.name > b.name ? 1 : -1;
+		});
+
+		if (!rows.length) {
+			chartSubtitle.textContent = total ? '测试开始后会实时生成延迟排行。' : '还没有可用于排序的站点。';
+			chartList.innerHTML = '<div class="ipass-chart-empty">等待首个检测结果...</div>';
+			return;
+		}
+
+		worstMs = Math.max(worstMs, 100);
+		chartSubtitle.textContent = '已排序 ' + rows.length + '/' + total + ' 个站点，检测完成后排行会继续收敛。';
+		chartList.innerHTML = '';
+		for (var i = 0; i < rows.length; i++) {
+			var row = rows[i];
+			var width = row.failed ? 100 : Math.max(6, Math.min(100, Math.round((row.ms / worstMs) * 100)));
+			var tone = getLatencyTone(row.ms / 1000, row.failed);
+			var item = document.createElement('div');
+			item.className = 'ipass-chart-row ' + tone;
+			item.setAttribute('data-site-id', row.id);
+			item.innerHTML =
+				'<div class="ipass-chart-name"></div>' +
+				'<div class="ipass-chart-track"><div class="ipass-chart-bar-fill"></div></div>' +
+				'<div class="ipass-chart-value"></div>';
+			item.querySelector('.ipass-chart-name').textContent = (i + 1) + '. ' + row.name;
+			item.querySelector('.ipass-chart-value').textContent = row.failed ? '异常' : row.ms + 'ms';
+			chartList.appendChild(item);
+			item.querySelector('.ipass-chart-bar-fill').style.width = width + '%';
+		}
+	}
+
+	function updateDistributionPanel(checked, total) {
+		var samples = [];
+		var markers = [];
+		var failed = 0;
+
+		for (var id in checkResults) {
+			var result = checkResults[id];
+			if (!result || !result.ok || !result.time_total) {
+				failed++;
+				continue;
+			}
+			var site = getSiteById(id);
+			var ms = Math.round(parseFloat(result.time_total) * 1000);
+			if (!ms || ms <= 0) {
+				failed++;
+				continue;
+			}
+			samples.push(ms);
+			markers.push({
+				id: id,
+				name: site ? site.name : (result.name || id),
+				ms: ms
+			});
+		}
+
+		var stats = calculateLatencyStats(samples);
+		var iqr = stats.p75 - stats.p25;
+		var tailRatio = stats.median > 0 ? stats.p90 / stats.median : 0;
+		distMedian.textContent = formatMs(stats.median);
+		distP90.textContent = formatMs(stats.p90);
+		distIqr.textContent = formatMs(iqr);
+		distTail.textContent = formatRatio(tailRatio);
+		distFailed.textContent = failed;
+		distSample.textContent = stats.count + '/' + total;
+
+		if (!stats.count) {
+			distSubtitle.textContent = total ? '等待可用的成功检测样本，失败站点不参与延迟分布计算。' : '还没有可用于统计的站点。';
+			distPlot.innerHTML = '<div class="ipass-dist-empty">等待成功站点样本...</div>';
+			return;
+		}
+
+		distSubtitle.textContent = '成功样本 ' + stats.count + '/' + total + '；失败站点单独计入异常，不参与 P50/IQR/P90。';
+		distPlot.innerHTML =
+			'<div class="ipass-dist-axis">' +
+				'<div class="ipass-dist-band" style="left:' + getLatencyPosition(stats.p25) + '%"><span>P25</span></div>' +
+				'<div class="ipass-dist-band" style="left:' + getLatencyPosition(stats.median) + '%"><span>P50</span></div>' +
+				'<div class="ipass-dist-band" style="left:' + getLatencyPosition(stats.p75) + '%"><span>P75</span></div>' +
+				'<div class="ipass-dist-band" style="left:' + getLatencyPosition(stats.p90) + '%"><span>P90</span></div>' +
+			'</div>';
+
+		var axis = distPlot.querySelector('.ipass-dist-axis');
+		markers.sort(function(a, b) { return a.ms - b.ms; });
+		for (var i = 0; i < markers.length; i++) {
+			var marker = markers[i];
+			var pct = getLatencyPosition(marker.ms);
+			var rankPct = markers.length === 1 ? 50 : Math.round((i / (markers.length - 1)) * 100);
+			var relative = stats.median > 0 ? Math.round(((marker.ms - stats.median) / stats.median) * 100) : 0;
+			var lane = 38 + ((i % 3) * 12);
+			var tone = getLatencyTone(marker.ms / 1000, false);
+			var dot = document.createElement('span');
+			dot.className = 'ipass-dist-marker ' + tone;
+			dot.style.left = pct + '%';
+			dot.style.top = lane + '%';
+			dot.setAttribute('data-label', marker.name + ' ' + marker.ms + 'ms P' + rankPct + ' ' + (relative >= 0 ? '+' : '') + relative + '%');
+			axis.appendChild(dot);
 		}
 	}
 
