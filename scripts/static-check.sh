@@ -20,10 +20,14 @@ for file in $required_files; do
 done
 
 grep -q 'LUCI_TITLE:=LuCI support for iPass Connectivity Check' luci-app-ipass/Makefile
+grep -q 'PKG_VERSION:=0.3.2' luci-app-ipass/Makefile
 grep -q 'LUCI_PKGARCH:=all' luci-app-ipass/Makefile
 grep -q 'LUCI_DEPENDS:=+curl +luci-compat +libuci-lua +luci-lib-jsonc' luci-app-ipass/Makefile
 grep -q "config site 'baidu'" luci-app-ipass/root/etc/config/ipass
-grep -q "config site 'google_204'" luci-app-ipass/root/etc/config/ipass
+grep -q "config site 'douyin'" luci-app-ipass/root/etc/config/ipass
+grep -q "config site 'chatgpt'" luci-app-ipass/root/etc/config/ipass
+grep -q "ensure_site douyin" luci-app-ipass/root/etc/uci-defaults/90_luci-ipass
+grep -q "ensure_site chatgpt" luci-app-ipass/root/etc/uci-defaults/90_luci-ipass
 
 sh -n luci-app-ipass/root/etc/uci-defaults/90_luci-ipass
 if [ -f luci-app-ipass/root/usr/share/ipass/check.sh ]; then

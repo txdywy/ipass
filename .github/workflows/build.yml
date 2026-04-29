@@ -9,15 +9,22 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  SDK_URL: https://downloads.openwrt.org/releases/24.10.0/targets/x86/64/openwrt-sdk-24.10.0-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Optimized Build
+    name: Build ${{ matrix.target }}
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: armsr-armv8
+            sdk_url: https://downloads.openwrt.org/releases/24.10.0/targets/armsr/armv8/openwrt-sdk-24.10.0-armsr-armv8_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+          - target: x86-64
+            sdk_url: https://downloads.openwrt.org/releases/24.10.0/targets/x86/64/openwrt-sdk-24.10.0-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst
 
     steps:
       - name: Checkout
@@ -28,7 +35,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: sdk
-          key: sdk-x86-64-24.10.0
+          key: sdk-${{ matrix.target }}-24.10.0-v2
 
       - name: Install build dependencies
         run: |
@@ -39,7 +46,7 @@ jobs:
         if: steps.cache-sdk.outputs.cache-hit != 'true'
         run: |
           mkdir sdk
-          wget -qO sdk.tar.zst "${{ env.SDK_URL }}"
+          wget -qO sdk.tar.zst "${{ matrix.sdk_url }}"
           tar --zstd -xf sdk.tar.zst -C sdk --strip-components=1
           cd sdk
           # 初始设置 git 缓冲
@@ -49,9 +56,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: sdk/feeds
-          key: feeds-${{ hashFiles('luci-app-ipass/Makefile') }}
+          key: feeds-${{ matrix.target }}-${{ hashFiles('luci-app-ipass/Makefile') }}
           restore-keys: |
-            feeds-
+            feeds-${{ matrix.target }}-
 
       - name: Update and Install Feeds
         working-directory: sdk
@@ -69,6 +76,8 @@ jobs:
           rsync -a --delete luci-app-ipass/ sdk/package/luci-app-ipass/
           
           cd sdk
+          rm -f bin/packages/*/base/luci-app-ipass*.ipk
+          make package/luci-app-ipass/clean V=s || true
           make defconfig
           echo "CONFIG_PACKAGE_luci-app-ipass=m" >> .config
           
@@ -79,15 +88,20 @@ jobs:
         run: |
           mkdir -p artifacts
           find sdk/bin/packages -name 'luci-app-ipass*.ipk' -exec cp {} artifacts/ \;
+          test -n "$(find artifacts -name 'luci-app-ipass*.ipk' -print -quit)"
           # 生成运行脚本
           for ipk in artifacts/*.ipk; do
-            ./scripts/package-run.sh "$ipk" "${ipk%.ipk}.run"
+            base="$(basename "$ipk" .ipk)"
+            target_ipk="artifacts/${base}-${{ matrix.target }}.ipk"
+            target_run="artifacts/${base}-${{ matrix.target }}.run"
+            mv "$ipk" "$target_ipk"
+            ./scripts/package-run.sh "$target_ipk" "$target_run"
           done
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: iPass-package
+          name: iPass-package-${{ matrix.target }}
           path: artifacts/*
 
   release:

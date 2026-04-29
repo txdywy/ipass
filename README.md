@@ -8,7 +8,7 @@
 - Page-load automatic checks.
 - One-click manual recheck.
 - DNS resolution plus HTTP/HTTPS access checks.
-- 8 default site cards: 4 domestic and 4 international.
+- 23 default site cards: 11 domestic and 12 international.
 - User-managed custom site cards through UCI/LuCI.
 - No daemon and no scheduled background task.
 
@@ -44,8 +44,8 @@ The build workflow runs on `main` branch pushes, `v*` tag pushes, and manual dis
 Pushing a version tag publishes a GitHub Release automatically:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.3.2
+git push origin v0.3.2
 ```
 
-Release asset names include the OpenWrt SDK target, for example `luci-app-ipass_0.1.0-1_all-armsr-armv8.ipk` and `luci-app-ipass_0.1.0-1_all-armsr-armv8.run`.
+Release asset names include the OpenWrt SDK target, for example `luci-app-ipass_0.3.2-r1_all-armsr-armv8.ipk` and `luci-app-ipass_0.3.2-r1_all-armsr-armv8.run`.

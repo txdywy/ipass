@@ -1,173 +1,57 @@
 #!/bin/sh
 set -eu
 
+ensure_site() {
+  id="$1"
+  name="$2"
+  url="$3"
+  category="$4"
+  timeout="${5:-5}"
+
+  if uci -q get "ipass.${id}" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  uci -q set "ipass.${id}=site"
+  uci -q set "ipass.${id}.name=${name}"
+  uci -q set "ipass.${id}.url=${url}"
+  uci -q set "ipass.${id}.category=${category}"
+  uci -q set "ipass.${id}.enabled=1"
+  uci -q set "ipass.${id}.timeout=${timeout}"
+}
+
 if [ ! -s /etc/config/ipass ]; then
   cp /rom/etc/config/ipass /etc/config/ipass 2>/dev/null || true
 fi
 
-uci -q show ipass | grep -q '=site' || {
-  cat > /etc/config/ipass <<'EOF'
-config site 'baidu'
-	option name '百度'
-	option url 'https://www.baidu.com/'
-	option category '国内'
-	option enabled '1'
-	option timeout '5'
+touch /etc/config/ipass
 
-config site 'taobao'
-	option name '淘宝'
-	option url 'https://www.taobao.com/'
-	option category '国内'
-	option enabled '1'
-	option timeout '5'
+ensure_site baidu '百度' 'https://www.baidu.com/' '国内'
+ensure_site taobao '淘宝' 'https://www.taobao.com/' '国内'
+ensure_site weixin '微信' 'https://weixin.qq.com/' '国内'
+ensure_site toutiao '今日头条' 'https://www.toutiao.com/' '国内'
+ensure_site douyin '抖音' 'https://www.douyin.com/' '国内'
+ensure_site xiaohongshu '小红书' 'https://www.xiaohongshu.com/' '国内'
+ensure_site doubao '豆包' 'https://www.doubao.com/' '国内'
+ensure_site xiaomi '小米' 'https://www.mi.com/' '国内'
+ensure_site deepseek 'DeepSeek' 'https://www.deepseek.com/' '国内'
+ensure_site kimi 'Kimi' 'https://kimi.moonshot.cn/' '国内'
+ensure_site bilibili '哔哩哔哩' 'https://www.bilibili.com/' '国内'
 
-config site 'weixin'
-	option name '微信'
-	option url 'https://weixin.qq.com/'
-	option category '国内'
-	option enabled '1'
-	option timeout '5'
+if ! uci -q get ipass.google >/dev/null 2>&1 && ! uci -q get ipass.google_204 >/dev/null 2>&1; then
+  ensure_site google 'Google' 'https://www.google.com/generate_204' '国际'
+fi
+ensure_site youtube 'YouTube' 'https://www.youtube.com/' '国际'
+ensure_site apple 'Apple' 'https://www.apple.com/' '国际'
+ensure_site tiktok 'TikTok' 'https://www.tiktok.com/' '国际'
+ensure_site telegram 'Telegram' 'https://t.me/' '国际'
+ensure_site chatgpt 'ChatGPT' 'https://chatgpt.com/' '国际'
+ensure_site claude 'Claude' 'https://claude.ai/' '国际'
+ensure_site gemini 'Gemini' 'https://gemini.google.com/' '国际'
+ensure_site x 'X (Twitter)' 'https://x.com/' '国际'
+ensure_site facebook 'Facebook' 'https://www.facebook.com/' '国际'
+ensure_site github 'GitHub' 'https://github.com/' '国际'
+ensure_site cloudflare 'Cloudflare' 'https://www.cloudflare.com/' '国际'
 
-config site 'toutiao'
-	option name '今日头条'
-	option url 'https://www.toutiao.com/'
-	option category '国内'
-	option enabled '1'
-	option timeout '5'
-
-config site 'douyin'
-	option name '抖音'
-	option url 'https://www.douyin.com/'
-	option category '国内'
-	option enabled '1'
-	option timeout '5'
-
-config site 'xiaohongshu'
-	option name '小红书'
-	option url 'https://www.xiaohongshu.com/'
-	option category '国内'
-	option enabled '1'
-	option timeout '5'
-
-config site 'doubao'
-	option name '豆包'
-	option url 'https://www.doubao.com/'
-	option category '国内'
-	option enabled '1'
-	option timeout '5'
-
-config site 'xiaomi'
-	option name '小米'
-	option url 'https://www.mi.com/'
-	option category '国内'
-	option enabled '1'
-	option timeout '5'
-
-config site 'deepseek'
-	option name 'DeepSeek'
-	option url 'https://www.deepseek.com/'
-	option category '国内'
-	option enabled '1'
-	option timeout '5'
-
-config site 'kimi'
-	option name 'Kimi'
-	option url 'https://kimi.moonshot.cn/'
-	option category '国内'
-	option enabled '1'
-	option timeout '5'
-
-config site 'bilibili'
-	option name '哔哩哔哩'
-	option url 'https://www.bilibili.com/'
-	option category '国内'
-	option enabled '1'
-	option timeout '5'
-
-config site 'google'
-	option name 'Google'
-	option url 'https://www.google.com/generate_204'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-
-config site 'youtube'
-	option name 'YouTube'
-	option url 'https://www.youtube.com/'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-
-config site 'apple'
-	option name 'Apple'
-	option url 'https://www.apple.com/'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-
-config site 'tiktok'
-	option name 'TikTok'
-	option url 'https://www.tiktok.com/'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-
-config site 'telegram'
-	option name 'Telegram'
-	option url 'https://t.me/'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-
-config site 'chatgpt'
-	option name 'ChatGPT'
-	option url 'https://chatgpt.com/'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-
-config site 'claude'
-	option name 'Claude'
-	option url 'https://claude.ai/'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-
-config site 'gemini'
-	option name 'Gemini'
-	option url 'https://gemini.google.com/'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-
-config site 'x'
-	option name 'X (Twitter)'
-	option url 'https://x.com/'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-
-config site 'facebook'
-	option name 'Facebook'
-	option url 'https://www.facebook.com/'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-
-config site 'github'
-	option name 'GitHub'
-	option url 'https://github.com/'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-
-config site 'cloudflare'
-	option name 'Cloudflare'
-	option url 'https://www.cloudflare.com/'
-	option category '国际'
-	option enabled '1'
-	option timeout '5'
-EOF
-}
-
+uci -q commit ipass
 exit 0
