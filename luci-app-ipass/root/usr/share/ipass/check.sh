@@ -61,7 +61,7 @@ extract_host() {
 
 status_is_success() {
   case "$1" in
-    20[0-9]|30[0-9]) return 0 ;;
+    20[0-9]|30[0-9]|404) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -107,9 +107,10 @@ curl_cmd="${CHECK_CURL_CMD:-}"
 if [ -n "$curl_cmd" ]; then
   curl_output="$(sh -c "$curl_cmd" 2>/dev/null || true)"
 else
-  # 使用模拟浏览器的 User-Agent 避免被 WAF 拦截
+  # 使用模拟浏览器的 User-Agent 和 Accept 头避免被 WAF 拦截
   ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-  curl_output="$(curl -L -k -o /dev/null -sS -A "$ua" --connect-timeout "$timeout" --max-time "$timeout" -w '%{http_code}:%{time_total}' "$url" 2>/dev/null || true)"
+  h_accept="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8"
+  curl_output="$(curl -L -k -o /dev/null -sS -A "$ua" -H "$h_accept" --connect-timeout "$timeout" --max-time "$timeout" -w '%{http_code}:%{time_total}' "$url" 2>/dev/null || true)"
 fi
 
 if [ -z "$curl_output" ]; then
