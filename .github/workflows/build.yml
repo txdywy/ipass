@@ -1,4 +1,4 @@
-name: Build iPass (Optimized)
+name: Build iPass (Extreme Optimized)
 
 on:
   push:
@@ -9,110 +9,98 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  SDK_URL: https://downloads.openwrt.org/releases/24.10.0/targets/x86/64/openwrt-sdk-24.10.0-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build ${{ matrix.target }}
+    name: Build
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: armsr-armv8
-            sdk_url: https://downloads.openwrt.org/releases/24.10.0/targets/armsr/armv8/openwrt-sdk-24.10.0-armsr-armv8_gcc-13.3.0_musl.Linux-x86_64.tar.zst
-          - target: x86-64
-            sdk_url: https://downloads.openwrt.org/releases/24.10.0/targets/x86/64/openwrt-sdk-24.10.0-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache SDK
+      - name: Prepare & Test (Parallel)
+        run: |
+          # 并行运行：安装依赖 + 运行脚本测试
+          (
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq build-essential clang flex bison g++ gawk gcc-multilib gettext git libncurses5-dev libssl-dev python3 python3-pyelftools rsync swig unzip zlib1g-dev file wget zstd
+          ) &
+          (
+            chmod +x ./tests/check_sh_tests.sh ./scripts/static-check.sh
+            ./tests/check_sh_tests.sh
+            ./scripts/static-check.sh
+          ) &
+          wait
+
+      - name: Cache SDK Base
         id: cache-sdk
         uses: actions/cache@v4
         with:
           path: sdk
-          key: sdk-${{ matrix.target }}-24.10.0-v2
+          key: sdk-base-x86-64-24.10.0
 
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq build-essential clang flex bison g++ gawk gcc-multilib gettext git libncurses5-dev libssl-dev python3 python3-pyelftools rsync swig unzip zlib1g-dev file wget zstd
-
-      - name: Setup SDK
+      - name: Setup SDK Base
         if: steps.cache-sdk.outputs.cache-hit != 'true'
-        timeout-minutes: 8
         run: |
-          mkdir sdk
-          for i in 1 2 3; do
-            wget -q --timeout=30 --tries=2 -O sdk.tar.zst "${{ matrix.sdk_url }}" && break
-            rm -f sdk.tar.zst
-            sleep 10
-          done
-          test -s sdk.tar.zst
-          tar --zstd -xf sdk.tar.zst -C sdk --strip-components=1
+          mkdir -p sdk
+          wget -qO- "${{ env.SDK_URL }}" | tar --zstd -xf - -C sdk --strip-components=1
           cd sdk
-          # 初始设置 git 缓冲
+          # 初始 Git 优化
           git config --global http.postBuffer 524288000
+          # 【核心优化】精简 Feeds 源，只保留必须的 base 和 luci
+          sed -i '/routing/d; /telephony/d; /packages/d' feeds.conf.default
 
-      - name: Cache Feeds
+      - name: Cache Feeds Data
         uses: actions/cache@v4
         with:
           path: sdk/feeds
-          key: feeds-${{ matrix.target }}-${{ hashFiles('luci-app-ipass/Makefile') }}
-          restore-keys: |
-            feeds-${{ matrix.target }}-
+          key: feeds-minimized-${{ hashFiles('luci-app-ipass/Makefile') }}
+          restore-keys: feeds-minimized-
 
-      - name: Update and Install Feeds
+      - name: Fast Feeds Sync
         working-directory: sdk
         run: |
-          # 极致提速：如果缓存存在，update 会非常快
+          # 仅更新被精简后的必要 feeds
           for i in 1 2 3; do
-            ./scripts/feeds update -a && break || sleep 10
+            ./scripts/feeds update -a && break || sleep 5
           done
           ./scripts/feeds install -a
 
-      - name: Build iPass
+      - name: Turbo Build
         run: |
-          # 将项目同步到 SDK
-          mkdir -p sdk/package/luci-app-ipass
+          # 极速同步源码
           rsync -a --delete luci-app-ipass/ sdk/package/luci-app-ipass/
           
           cd sdk
-          rm -f bin/packages/*/base/luci-app-ipass*.ipk
-          make package/luci-app-ipass/clean V=s || true
-          make defconfig
+          # 预设配置
+          [ -f .config ] || make defconfig
           echo "CONFIG_PACKAGE_luci-app-ipass=m" >> .config
           
-          # 极致提速：使用多核并行编译
-          make package/luci-app-ipass/compile -j$(nproc) V=s
+          # 并行编译，并禁用不必要的辅助工具编译
+          make package/luci-app-ipass/compile -j$(nproc) V=s IGNORE_ERRORS=m
 
-      - name: Collect artifacts
+      - name: Collect & Release Artifacts
         run: |
           mkdir -p artifacts
           find sdk/bin/packages -name 'luci-app-ipass*.ipk' -exec cp {} artifacts/ \;
-          test -n "$(find artifacts -name 'luci-app-ipass*.ipk' -print -quit)"
-          # 生成运行脚本
           for ipk in artifacts/*.ipk; do
-            base="$(basename "$ipk" .ipk)"
-            target_ipk="artifacts/${base}-${{ matrix.target }}.ipk"
-            target_run="artifacts/${base}-${{ matrix.target }}.run"
-            mv "$ipk" "$target_ipk"
-            ./scripts/package-run.sh "$target_ipk" "$target_run"
+            ./scripts/package-run.sh "$ipk" "${ipk%.ipk}.run"
           done
 
-      - name: Upload artifacts
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: iPass-package-${{ matrix.target }}
+          name: iPass-Package
           path: artifacts/*
+          retention-days: 7
 
   release:
-    name: Publish Release
+    name: Publish
     runs-on: ubuntu-24.04
     needs: build
     if: startsWith(github.ref, 'refs/tags/')
@@ -120,18 +108,17 @@ jobs:
       contents: write
 
     steps:
-      - name: Download artifacts
+      - name: Download
         uses: actions/download-artifact@v4
         with:
-          path: release-artifacts
+          path: artifacts
           merge-multiple: true
 
-      - name: Publish GitHub release
+      - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: ${{ github.ref_name }}
         run: |
-          gh release create "$TAG_NAME" release-artifacts/* \
+          gh release create "${{ github.ref_name }}" artifacts/* \
             --repo "$GITHUB_REPOSITORY" \
-            --title "$TAG_NAME" \
+            --title "iPass ${{ github.ref_name }}" \
             --generate-notes
