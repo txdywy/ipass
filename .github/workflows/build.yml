@@ -23,9 +23,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare & Test (Parallel)
+      - name: Turbo Build Workflow
         run: |
-          # 并行运行：安装依赖 + 运行脚本测试
+          # 1. 极致提速：将依赖安装和静态测试并行
+          echo "::group::Install Dependencies & Run Tests"
           (
             sudo apt-get update -qq
             sudo apt-get install -y -qq build-essential clang flex bison g++ gawk gcc-multilib gettext git libncurses5-dev libssl-dev python3 python3-pyelftools rsync swig unzip zlib1g-dev file wget zstd
@@ -36,61 +37,43 @@ jobs:
             ./scripts/static-check.sh
           ) &
           wait
+          echo "::endgroup::"
 
-      - name: Cache SDK Base
-        id: cache-sdk
-        uses: actions/cache@v4
-        with:
-          path: sdk
-          key: sdk-base-x86-64-24.10.0
-
-      - name: Setup SDK Base
-        if: steps.cache-sdk.outputs.cache-hit != 'true'
-        run: |
+          # 2. 极致提速：无状态 SDK 环境 (抛弃慢速的文件缓存，直接利用 GHA 千兆内网直连下载)
+          echo "::group::Download & Setup SDK"
           mkdir -p sdk
           wget -qO- "${{ env.SDK_URL }}" | tar --zstd -xf - -C sdk --strip-components=1
           cd sdk
-          # 初始 Git 优化
-          git config --global http.postBuffer 524288000
-          # 【核心优化】精简 Feeds 源，只保留必须的 base 和 luci
+          # 【核心优化】精简 Feeds 源，仅保留必须的 base 和 luci，丢弃 routing, telephony 等
           sed -i '/routing/d; /telephony/d; /packages/d' feeds.conf.default
+          echo "::endgroup::"
 
-      - name: Cache Feeds Data
-        uses: actions/cache@v4
-        with:
-          path: sdk/feeds
-          key: feeds-minimized-${{ hashFiles('luci-app-ipass/Makefile') }}
-          restore-keys: feeds-minimized-
-
-      - name: Fast Feeds Sync
-        working-directory: sdk
-        run: |
-          # 仅更新被精简后的必要 feeds
+          # 3. 极致提速：轻量级 feeds 拉取
+          echo "::group::Update & Install Feeds"
+          git config --global http.postBuffer 524288000
           for i in 1 2 3; do
             ./scripts/feeds update -a && break || sleep 5
           done
           ./scripts/feeds install -a
+          echo "::endgroup::"
 
-      - name: Turbo Build
-        run: |
-          # 极速同步源码
-          rsync -a --delete luci-app-ipass/ sdk/package/luci-app-ipass/
-          
-          cd sdk
-          # 预设配置
+          # 4. 极速编译
+          echo "::group::Compile Package"
+          rsync -a --delete ../luci-app-ipass/ package/luci-app-ipass/
           [ -f .config ] || make defconfig
           echo "CONFIG_PACKAGE_luci-app-ipass=m" >> .config
-          
-          # 并行编译，并禁用不必要的辅助工具编译
           make package/luci-app-ipass/compile -j$(nproc) V=s IGNORE_ERRORS=m
+          echo "::endgroup::"
 
-      - name: Collect & Release Artifacts
-        run: |
-          mkdir -p artifacts
-          find sdk/bin/packages -name 'luci-app-ipass*.ipk' -exec cp {} artifacts/ \;
-          for ipk in artifacts/*.ipk; do
-            ./scripts/package-run.sh "$ipk" "${ipk%.ipk}.run"
+          # 5. 整理产物
+          echo "::group::Collect Artifacts"
+          mkdir -p ../artifacts
+          find bin/packages -name 'luci-app-ipass*.ipk' -exec cp {} ../artifacts/ \;
+          cd ../artifacts
+          for ipk in *.ipk; do
+            ../scripts/package-run.sh "$ipk" "${ipk%.ipk}.run"
           done
+          echo "::endgroup::"
 
       - name: Upload
         uses: actions/upload-artifact@v4
