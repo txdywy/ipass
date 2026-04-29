@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# 这个脚本用于在升级插件时，自动将用户旧配置中的被拦截的 URL 升级为带 /robots.txt 的路径
+uci -q show ipass | grep '=site' | cut -d. -f2 | cut -d= -f1 | while read -r section; do
+    url=$(uci -q get ipass."$section".url)
+    case "$url" in
+        "https://www.youtube.com/"|\
+        "https://www.apple.com/"|\
+        "https://www.tiktok.com/"|\
+        "https://t.me/"|\
+        "https://chatgpt.com/"|\
+        "https://claude.ai/"|\
+        "https://gemini.google.com/"|\
+        "https://x.com/"|\
+        "https://www.facebook.com/")
+            uci set ipass."$section".url="${url}robots.txt"
+            uci commit ipass
+            ;;
+    esac
+done
+
+exit 0
