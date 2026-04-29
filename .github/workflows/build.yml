@@ -17,6 +17,7 @@ jobs:
   build:
     name: Build ${{ matrix.target }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -44,9 +45,15 @@ jobs:
 
       - name: Setup SDK
         if: steps.cache-sdk.outputs.cache-hit != 'true'
+        timeout-minutes: 8
         run: |
           mkdir sdk
-          wget -qO sdk.tar.zst "${{ matrix.sdk_url }}"
+          for i in 1 2 3; do
+            wget -q --timeout=30 --tries=2 -O sdk.tar.zst "${{ matrix.sdk_url }}" && break
+            rm -f sdk.tar.zst
+            sleep 10
+          done
+          test -s sdk.tar.zst
           tar --zstd -xf sdk.tar.zst -C sdk --strip-components=1
           cd sdk
           # 初始设置 git 缓冲
